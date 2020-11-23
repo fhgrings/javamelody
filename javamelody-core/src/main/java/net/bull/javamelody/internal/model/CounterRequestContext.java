@@ -50,6 +50,7 @@ public class CounterRequestContext implements ICounterRequestContext, Cloneable,
 	private final long threadId;
 	// attention, si sérialisation vers serveur de collecte, la durée peut être impactée s'il y a désynchronisation d'horloge
 	private final long startTime;
+	private final long durationTime;
 	private final long startCpuTime;
 	private final long startAllocatedBytes;
 	private final String sessionId;
@@ -67,6 +68,7 @@ public class CounterRequestContext implements ICounterRequestContext, Cloneable,
 		this(parentCounter, parentContext, requestName, completeRequestName, httpRequest,
 				remoteUser, Thread.currentThread().getId(), System.currentTimeMillis(),
 				startCpuTime, startAllocatedBytes, sessionId);
+		//System.out.println("CounterRequestContext");
 		if (parentContext != null) {
 			parentContext.setCurrentChildContext(this);
 		}
@@ -93,9 +95,11 @@ public class CounterRequestContext implements ICounterRequestContext, Cloneable,
 		this.remoteUser = remoteUser;
 		this.threadId = threadId;
 		this.startTime = startTime;
+		this.durationTime = System.currentTimeMillis() - startTime;
 		this.startCpuTime = startCpuTime;
 		this.startAllocatedBytes = startAllocatedBytes;
 		this.sessionId = sessionId;
+		//System.out.println("CounterRequestContext-Print: " + this.toString());
 	}
 
 	public Counter getParentCounter() {
@@ -328,6 +332,7 @@ public class CounterRequestContext implements ICounterRequestContext, Cloneable,
 		// s'il fallait un clone du parentCounter pour sérialiser, on pourrait faire seulement ça:
 		//		final Counter parentCounterClone = new Counter(counter.getName(), counter.getStorageName(),
 		//				counter.getIconName(), counter.getChildCounterName(), null);
+		//System.out.println("Clone: " + getRequestName());
 		final CounterRequestContext clone = new CounterRequestContext(counter, parentContextClone,
 				getRequestName(), getCompleteRequestName(), httpRequest, getRemoteUser(),
 				getThreadId(), startTime, startCpuTime, startAllocatedBytes, sessionId);
@@ -349,7 +354,7 @@ public class CounterRequestContext implements ICounterRequestContext, Cloneable,
 	public String toString() {
 		return getClass().getSimpleName() + "[parentCounter=" + getParentCounter().getName()
 				+ ", completeRequestName=" + getCompleteRequestName() + ", threadId="
-				+ getThreadId() + ", startTime=" + startTime + ", childHits=" + getChildHits()
+				+ getThreadId() + ", startTime=" + startTime + ", durationTime=" + durationTime + ", childHits=" + getChildHits()
 				+ ", childDurationsSum=" + getChildDurationsSum() + ", childContexts="
 				+ getChildContexts() + ']';
 	}

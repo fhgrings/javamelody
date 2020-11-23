@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.bull.javamelody.JdbcWrapper;
+import net.bull.javamelody.Parameter;
 import net.bull.javamelody.internal.common.LOG;
 import net.bull.javamelody.internal.common.Parameters;
 import net.bull.javamelody.internal.model.Counter.CounterRequestContextComparator;
@@ -77,6 +78,7 @@ public class Collector { // NOPMD
 	private List<MetricsPublisher> metricsPublishers;
 	private final WebappVersions webappVersions;
 	private final StorageLock storageLock;
+	private String currRequestMinDurationLog = Parameter.CURRENT_REQUEST_MIN_DURATION_LOG.getValue();
 
 	/**
 	 * Constructeur.
@@ -100,6 +102,7 @@ public class Collector { // NOPMD
 		assert counters != null;
 		this.application = application;
 		this.counters = Collections.unmodifiableList(new ArrayList<Counter>(counters));
+
 		this.samplingProfiler = samplingProfiler;
 		// c'est le collector qui fixe le nom de l'application (avant la lecture des éventuels fichiers)
 		for (final Counter counter : counters) {
@@ -211,6 +214,7 @@ public class Collector { // NOPMD
 
 			CounterRequestContext.replaceParentCounters(rootCurrentContexts, newParentCounters);
 		}
+		System.out.println("rootCurrentContexts: "+rootCurrentContexts);
 		return rootCurrentContexts;
 	}
 
@@ -350,6 +354,7 @@ public class Collector { // NOPMD
 				collectJavaInformations(javaInformationsList);
 				collectOtherJavaInformations(javaInformationsList);
 				collectTomcatInformations(javaInformationsList);
+				collectCurrentRequests();
 			}
 			for (final Counter counter : counters) {
 				// counter.isDisplayed() peut changer pour spring, ejb, guice ou services selon l'utilisation
@@ -364,8 +369,10 @@ public class Collector { // NOPMD
 				}
 			}
 		} finally {
+			//System.out.println("Collector: "+this);
 			if (metricsPublishers != null) {
 				for (final MetricsPublisher metricsPublisher : metricsPublishers) {
+					System.out.println(metricsPublisher);
 					metricsPublisher.send();
 				}
 			}
@@ -392,6 +399,24 @@ public class Collector { // NOPMD
 		return memorySize;
 	}
 
+	private void collectCurrentRequests() {
+		System.out.println("Starting colletction: "+currRequestMinDurationLog);
+		if (currRequestMinDurationLog == null) return;
+		try {
+			List<CounterRequestContext> rootCurrentContextList = getRootCurrentContexts(counters);
+			for (final CounterRequestContext rootCurrentContext : rootCurrentContextList) {
+				System.out.println(rootCurrentContext.getDuration(System.currentTimeMillis()));
+				if (rootCurrentContext.getDuration(System.currentTimeMillis()) > (Integer.parseInt(currRequestMinDurationLog)*1000))
+				if (metricsPublishers != null) {
+					for (final MetricsPublisher metricsPublisher : metricsPublishers) {
+							metricsPublisher.addValue("currentRequests", rootCurrentContext.toString());
+					}
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	private void collectJavaInformations(List<JavaInformations> javaInformationsList)
 			throws IOException {
 		long usedMemory = 0;
@@ -723,6 +748,7 @@ public class Collector { // NOPMD
 				// ne seront connus (en delta) qu'au deuxième passage
 				// (au 1er passage, globalRequest contient déjà les données lues sur disque)
 				final CounterRequest lastPeriodGlobalRequest = newGlobalRequest.clone();
+				//System.out.println("lastPeriodGlobalRequest:"+lastPeriodGlobalRequest);
 				lastPeriodGlobalRequest.removeHits(globalRequest);
 
 				final long hits = lastPeriodGlobalRequest.getHits();
@@ -744,6 +770,7 @@ public class Collector { // NOPMD
 			}
 
 			// on sauvegarde les nouveaux totaux pour la prochaine fois
+			//System.out.println("requests: "+requests);
 			globalRequestsByCounter.put(counter, newGlobalRequest);
 		}
 
@@ -814,6 +841,8 @@ public class Collector { // NOPMD
 			// idem : on clone et on soustrait les requêtes précédentes
 			// sauf si c'est l'initialisation
 			final CounterRequest lastPeriodRequest = newRequest.clone();
+			//System.out.println("lastPeriodRequest:" +lastPeriodRequest);
+			//System.out.println("durationSum"+lastPeriodRequest.getName()+lastPeriodRequest.getDurationsSum());
 			lastPeriodRequest.removeHits(request);
 			// avec la condition getHits() > 1 au lieu de getHits() > 0, on évite de créer des fichiers RRD
 			// pour les toutes les requêtes appelées une seule fois sur la dernière période

@@ -24,6 +24,7 @@ import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.sql.SQLOutput;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Collections;
@@ -66,6 +67,8 @@ class InfluxDB extends MetricsPublisher {
 
 	static InfluxDB getInstance(String contextPath, String hostName) {
 		final String influxDbUrl = Parameter.INFLUXDB_URL.getValue();
+		//System.out.println("Parameter.INFLUXDB_URL");
+		//System.out.println(influxDbUrl);
 		if (influxDbUrl != null) {
 			assert contextPath != null;
 			assert hostName != null;
@@ -98,6 +101,20 @@ class InfluxDB extends MetricsPublisher {
 		}
 		bufferWriter.append(prefix).append(metric).append(tags).append(SEPARATOR);
 		bufferWriter.append("value=").append(decimalFormat.format(value)).append(SEPARATOR);
+		bufferWriter.append(lastTimestamp).append('\n');
+	}
+
+	@Override
+	public synchronized void addValue(String metric, String value) throws IOException {
+		// ex curl -i -XPOST 'http://localhost:8086/write?db=mydb&precision=s' --data-binary
+		// 'cpu_load_short,direction=in,host=server01,region=us-west value=2.0 1422568543702'
+		final long timeInSeconds = System.currentTimeMillis() / 1000;
+		if (lastTime != timeInSeconds) {
+			lastTimestamp = String.valueOf(timeInSeconds);
+			lastTime = timeInSeconds;
+		}
+		bufferWriter.append(prefix).append(metric).append(tags).append(SEPARATOR);
+		bufferWriter.append("value=").append('"'+value+'"').append(SEPARATOR);
 		bufferWriter.append(lastTimestamp).append('\n');
 	}
 

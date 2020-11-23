@@ -207,6 +207,12 @@ public enum Parameter {
 	CSRF_PROTECTION_ENABLED("csrf-protection-enabled"),
 
 	/**
+	 * Active la protection contre CSRF (false par défaut).
+	 */
+	CURRENT_REQUEST_MIN_DURATION_LOG("current-request-min-duration"),
+
+
+	/**
 	 * Valeur de l'entête http X-Frame-Options, par exemple, DENY, SAMEORIGIN, ALLOW-FROM http://example.com, ALLOWALL (SAMEORIGIN par défaut).
 	 */
 	X_FRAME_OPTIONS("x-frame-options"),

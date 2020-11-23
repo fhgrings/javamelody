@@ -52,6 +52,8 @@ public abstract class MetricsPublisher {
 			contextPath = "/";
 		}
 		final String hosts = sb.toString();
+		//System.out.println(contextPath);
+		//System.out.println(hosts);
 		return getMetricsPublishers(contextPath, hosts);
 	}
 
@@ -80,10 +82,15 @@ public abstract class MetricsPublisher {
 		if (metricsPublishers.isEmpty()) {
 			return Collections.emptyList();
 		}
+		//System.out.println("INFLUX___DBB");
+		//System.out.println(influxDb);
+		//System.out.println(metricsPublishers.toString());
 		return metricsPublishers;
 	}
 
 	public abstract void addValue(String metric, double value) throws IOException;
+
+	public abstract void addValue(String metric, String value) throws IOException;
 
 	public abstract void send() throws IOException;
 

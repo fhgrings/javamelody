@@ -407,6 +407,7 @@ public class HtmlCounterRequestContextReport extends HtmlAbstractReport {
 			write("</span>");
 			first = false;
 		}
+		//System.out.println("HtmlCounterRequestContextReport: "+this);
 	}
 
 	private void writeRequestValues(int[] requestValues) throws IOException {

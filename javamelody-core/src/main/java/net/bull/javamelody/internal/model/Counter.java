@@ -418,6 +418,9 @@ public class Counter implements Cloneable, Serializable { // NOPMD
 	public void bindContextIncludingCpu(String requestName) {
 		bindContext(requestName, requestName, null, ThreadInformations.getCurrentThreadCpuTime(),
 				ThreadInformations.getCurrentThreadAllocatedBytes());
+		//System.out.println("bindContextIncludingCPU");
+		//System.out.println(this.name);
+		//System.out.println(requestName);
 	}
 
 	public void bindContext(String requestName, String completeRequestName,
@@ -449,6 +452,9 @@ public class Counter implements Cloneable, Serializable { // NOPMD
 		if (context.getParentContext() == null) {
 			rootCurrentContextsByThreadId.put(context.getThreadId(), context);
 		}
+		//System.out.println("bindContext");
+		//System.out.println(this.name);
+		//System.out.println(requestName);
 	}
 
 	public void unbindContext() {
@@ -468,6 +474,7 @@ public class Counter implements Cloneable, Serializable { // NOPMD
 			addRequest(context.getRequestName(), duration, cpuUsedMillis, allocatedKBytes,
 					systemError, -1);
 		}
+		//System.out.println("addRequestForCurrentContext: "+context.toString());
 	}
 
 	public void addRequestForCurrentContext(String systemErrorStackTrace) {
@@ -707,6 +714,7 @@ public class Counter implements Cloneable, Serializable { // NOPMD
 		if (counterRequest.getHits() > 0) {
 			// clone pour être thread-safe ici
 			final CounterRequest newRequest = counterRequest.clone();
+			//System.out.println("newRequest:" +newRequest);
 			final CounterRequest request = getCounterRequestInternal(newRequest.getName());
 			synchronized (request) {
 				request.addHits(newRequest);
@@ -767,6 +775,7 @@ public class Counter implements Cloneable, Serializable { // NOPMD
 		final CounterRequest request = getCounterRequestInternal(aggregateRequestName,
 				saveRequestIfAbsent);
 		synchronized (request) {
+			//System.out.println("request"+request);
 			return request.clone();
 		}
 	}
@@ -831,6 +840,7 @@ public class Counter implements Cloneable, Serializable { // NOPMD
 		for (final CounterRequest request : requests.values()) {
 			// on synchronize sur request en cas d'ajout en parallèle d'un hit sur cette request
 			synchronized (request) {
+				//System.out.println("GetRequests"+request);
 				result.add(request.clone());
 			}
 		}
@@ -873,6 +883,7 @@ public class Counter implements Cloneable, Serializable { // NOPMD
 		for (final CounterRequestContext rootCurrentContext : rootCurrentContextsByThreadId
 				.values()) {
 			contextList.add(rootCurrentContext.clone());
+			//System.out.println("getOrderedRootCurrentContexts"+rootCurrentContext);
 		}
 		if (contextList.size() > 1) {
 			Collections.sort(contextList, Collections
@@ -946,7 +957,9 @@ public class Counter implements Cloneable, Serializable { // NOPMD
 		if (errors != null) {
 			clone.errors.addAll(getErrors());
 		}
+		//System.out.println("Counter clone: "+this.toString());
 		return clone;
+
 	}
 
 	/**
