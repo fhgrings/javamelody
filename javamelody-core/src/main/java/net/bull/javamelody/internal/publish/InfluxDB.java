@@ -67,8 +67,6 @@ class InfluxDB extends MetricsPublisher {
 
 	static InfluxDB getInstance(String contextPath, String hostName) {
 		final String influxDbUrl = Parameter.INFLUXDB_URL.getValue();
-		//System.out.println("Parameter.INFLUXDB_URL");
-		//System.out.println(influxDbUrl);
 		if (influxDbUrl != null) {
 			assert contextPath != null;
 			assert hostName != null;

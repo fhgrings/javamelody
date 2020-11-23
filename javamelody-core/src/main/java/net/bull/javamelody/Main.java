@@ -76,9 +76,9 @@ public final class Main {
 		//				// tell the user that we'll be starting as a daemon.
 		//				Method isDaemonized = $daemon.getMethod("isDaemonized", new Class[] {});
 		//				if (!((Boolean) isDaemonized.invoke(daemon, new Object[0])).booleanValue()) {
-		//					//System.out.println("Forking into background to run as a daemon.");
+		//					System.out.println("Forking into background to run as a daemon.");
 		//					if (!hasLogOption(args))
-		//						//System.out.println("Use --logfile to redirect output to a file");
+		//						System.out.println("Use --logfile to redirect output to a file");
 		//				}
 		//
 		//				Method m = $daemon.getMethod("all", new Class[] { boolean.class });

@@ -150,7 +150,6 @@ public class MonitoringController {
 			HttpServletResponse httpResponse, ServletContext servletContext)
 			throws IOException, ServletException {
 		executeActionIfNeeded(httpRequest);
-		//System.out.println("doActionIfNeededAndReport");
 		// javaInformations doit être réinstanciée et doit être après executeActionIfNeeded
 		// pour avoir des informations à jour
 		final JavaInformations javaInformations;

@@ -146,7 +146,6 @@ public class MonitoringFilter implements Filter {
 		LOG.debug("JavaMelody filter init started");
 
 		this.filterContext = new FilterContext(getApplicationType());
-		//System.out.println("MonitoringFilter.java");
 		this.httpAuth = new HttpAuth();
 		config.getServletContext().setAttribute(ReportServlet.FILTER_CONTEXT_KEY, filterContext);
 		final Collector collector = filterContext.getCollector();
@@ -204,8 +203,6 @@ public class MonitoringFilter implements Filter {
 		final HttpServletResponse httpResponse = (HttpServletResponse) response;
 
 		if (httpRequest.getRequestURI().equals(getMonitoringUrl(httpRequest))) {
-			//System.out.println("doFilter");
-			//System.out.println(httpRequest);
 			doMonitoring(httpRequest, httpResponse);
 			return;
 		}
@@ -230,10 +227,6 @@ public class MonitoringFilter implements Filter {
 		boolean systemError = false;
 		Throwable systemException = null;
 		String requestName = getRequestName(wrappedRequest);
-		//System.out.println("MonitoringFilter");
-		//System.out.println(httpRequest);
-		//System.out.println(wrappedRequest);
-		//System.out.println(requestName);
 		final String completeRequestName = getCompleteRequestName(wrappedRequest, true);
 		try {
 			JdbcWrapper.ACTIVE_THREAD_COUNT.incrementAndGet();
@@ -412,7 +405,6 @@ public class MonitoringFilter implements Filter {
 
 		final Collector collector = filterContext.getCollector();
 		final MonitoringController monitoringController = new MonitoringController(collector, null);
-		//System.out.println("doMonitoring");
 		monitoringController.doActionIfNeededAndReport(httpRequest, httpResponse,
 				filterConfig.getServletContext());
 

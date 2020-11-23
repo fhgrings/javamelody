@@ -214,7 +214,6 @@ public class Collector { // NOPMD
 
 			CounterRequestContext.replaceParentCounters(rootCurrentContexts, newParentCounters);
 		}
-		System.out.println("rootCurrentContexts: "+rootCurrentContexts);
 		return rootCurrentContexts;
 	}
 
@@ -369,10 +368,8 @@ public class Collector { // NOPMD
 				}
 			}
 		} finally {
-			//System.out.println("Collector: "+this);
 			if (metricsPublishers != null) {
 				for (final MetricsPublisher metricsPublisher : metricsPublishers) {
-					System.out.println(metricsPublisher);
 					metricsPublisher.send();
 				}
 			}
@@ -400,12 +397,10 @@ public class Collector { // NOPMD
 	}
 
 	private void collectCurrentRequests() {
-		System.out.println("Starting colletction: "+currRequestMinDurationLog);
 		if (currRequestMinDurationLog == null) return;
 		try {
 			List<CounterRequestContext> rootCurrentContextList = getRootCurrentContexts(counters);
 			for (final CounterRequestContext rootCurrentContext : rootCurrentContextList) {
-				System.out.println(rootCurrentContext.getDuration(System.currentTimeMillis()));
 				if (rootCurrentContext.getDuration(System.currentTimeMillis()) > (Integer.parseInt(currRequestMinDurationLog)*1000))
 				if (metricsPublishers != null) {
 					for (final MetricsPublisher metricsPublisher : metricsPublishers) {
@@ -748,7 +743,6 @@ public class Collector { // NOPMD
 				// ne seront connus (en delta) qu'au deuxième passage
 				// (au 1er passage, globalRequest contient déjà les données lues sur disque)
 				final CounterRequest lastPeriodGlobalRequest = newGlobalRequest.clone();
-				//System.out.println("lastPeriodGlobalRequest:"+lastPeriodGlobalRequest);
 				lastPeriodGlobalRequest.removeHits(globalRequest);
 
 				final long hits = lastPeriodGlobalRequest.getHits();
@@ -770,7 +764,6 @@ public class Collector { // NOPMD
 			}
 
 			// on sauvegarde les nouveaux totaux pour la prochaine fois
-			//System.out.println("requests: "+requests);
 			globalRequestsByCounter.put(counter, newGlobalRequest);
 		}
 
@@ -841,8 +834,6 @@ public class Collector { // NOPMD
 			// idem : on clone et on soustrait les requêtes précédentes
 			// sauf si c'est l'initialisation
 			final CounterRequest lastPeriodRequest = newRequest.clone();
-			//System.out.println("lastPeriodRequest:" +lastPeriodRequest);
-			//System.out.println("durationSum"+lastPeriodRequest.getName()+lastPeriodRequest.getDurationsSum());
 			lastPeriodRequest.removeHits(request);
 			// avec la condition getHits() > 1 au lieu de getHits() > 0, on évite de créer des fichiers RRD
 			// pour les toutes les requêtes appelées une seule fois sur la dernière période
